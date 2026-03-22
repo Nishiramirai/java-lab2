@@ -4,11 +4,11 @@ import java.util.Scanner;
 
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
-    private static int[] arr = null;
 
 
     public static void main(String[] args) {
         while (true) {
+            System.out.println("\n--- Главное меню ---");
             System.out.println("1. Одномерные массивы");
             System.out.println("2. Двумерные и рваные массивы");
             System.out.println("0. Выход");
@@ -23,6 +23,8 @@ public class Main {
     }
 
     private static void menu1D() {
+        int[] arr = null;
+
         while (true) {
             System.out.println("\n--- Одномерные массивы ---");
             System.out.println("1. Создать Random / 2. Вручную / 3. Вывод");
@@ -49,8 +51,41 @@ public class Main {
     }
 
     private static void menu2D() {
+        int[][] matrix = null;
+        int[][] jaggedArray = null;
 
+        while (true) {
+            System.out.println("\n--- Многомерные массивы ---");
+            System.out.println("1. Создать и вывести двумерный массив");
+            System.out.println("2. Удалить строки с K1 по K2");
+            System.out.println("3. Создать и вывести рваный массив");
+            System.out.println("4. Добавить строку по индексу");
+            System.out.println("0. Назад");
+
+            int ch = readInt("Выбор: ");
+            switch (ch) {
+                case 1: 
+                    matrix = createMatrix();
+                    printMatrix(matrix);
+                    break;
+                case 2:
+                    matrix = deleteRowsRange(matrix);
+                    printMatrix(matrix);
+                    break;
+                case 3: 
+                    jaggedArray = createJagged();
+                    printMatrix(jaggedArray);
+                    break;
+                case 4:
+                    jaggedArray = addRowToJagged(jaggedArray);
+                    printMatrix(jaggedArray); 
+                    break;
+                case 0: return;
+            }
+        }
     }
+
+    // ЧАСТЬ 1
 
     // 1. a) Сформировать массив из n элементов с помощью датчика случайных чисел
     private static int[] createRandomArray() {
@@ -87,8 +122,8 @@ public class Main {
             return arr;
         }
 
-        int k = readInt("С какого индекса (K) удалять?");
-        int n = readInt("Сколько элементов (N) удалить?");
+        int k = readInt("С какого индекса (K) удалять? ");
+        int n = readInt("Сколько элементов (N) удалить? ");
 
         if (k < 0 || k >= arr.length || n < 0 || (k + n) > arr.length) {
             System.out.println("Ошибка: выход за границы массива");
@@ -96,6 +131,12 @@ public class Main {
         }
 
         int[] newArr = new int[arr.length - n];
+        for (int i = 0, j = 0; i < arr.length; i++) {
+            if (i < k || i >= (k + n)) {
+                newArr[j] = arr[i];
+                j++;
+            }
+        }
         return newArr;
     }
 
@@ -212,5 +253,103 @@ public class Main {
                 System.out.println("Ошибка! Введите целое число");
             }
         }
+    }
+
+
+    // ЧАСТЬ 2
+
+    // 1. Создание двумерного массива, заполненного случайными числами
+    private static int[][] createMatrix() {
+        int m = readInt("Количество строк: ");
+        int n = readInt("Количество столбцов: ");
+
+        if (m == 0 || n == 0) {
+            System.out.println("Ошибка: количество строк и столбцов должно быть больше нуля");
+            return new int[0][0];
+        }
+
+        int matrix[][] = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = new Random().nextInt(100);
+            }
+        }
+
+        return matrix;
+    }
+
+    // 1. Вывод двумерного массива на печать
+    private static void printMatrix(int[][] matrix) {
+        if (matrix == null) {
+            return;
+        }
+
+        for (int i = 0; i < matrix.length; i++) {
+            System.out.println(Arrays.toString(matrix[i]));
+        }
+    }
+
+    // 2. Удалить строки, начиная со строки К1 и до строки К2 включительно
+    private static int[][] deleteRowsRange(int[][] matrix) {
+        if (matrix == null || matrix.length == 0) {
+            return matrix;
+        }
+
+        int k1 = readInt("Удалять с индекса (K1)");
+        int k2 = readInt("Удалять по индекс (K2)");
+
+        if (k1 < 0 || k2 >= matrix.length || k1 > k2) {
+            System.out.println("Ошибка: неверный диапозон");
+            return matrix;
+        }
+
+        int rowsToRemove = k2 - k1 + 1;
+        
+        int[][] newMatrix = new int[matrix.length - rowsToRemove][];
+        for (int i = 0, j = 0; i < matrix.length; i++) {
+            if (i < k1 || i > k2) {
+                newMatrix[j] = matrix[i];
+                j++;
+            }
+        }
+        return newMatrix;
+    }
+
+    // 3. Сформировать рваный массив, заполненный случайными числами.
+    private static int[][] createJagged() {
+        int m = readInt("Введите количество строк: ");
+        int [][]jagged = new int[m][];
+
+        for (int i = 0; i < m; i++) {
+            jagged[i] = new int[new Random().nextInt(5) + 1];
+            for (int j = 0; j < jagged[i].length; j++) {
+                jagged[i][j] = new Random().nextInt(100);
+            }
+        }
+
+        return jagged;
+    }
+
+    // 4. Добавить строку с заданным номером
+    private static int[][] addRowToJagged(int[][] m) {
+            int idx = readInt("Индекс для вставки строки: ");
+            int size = readInt("Размер новой строки: ");
+            int[] newRow = new int[size];
+            for (int i = 0; i < size; i++) newRow[i] = new Random().nextInt(100);
+
+            if (m == null) {
+                return new int[][]{newRow};
+            }
+            if (idx < 0 || idx > m.length) {
+                System.out.println("Индекс вне диапазона, вставка произойдет в конец");
+                idx = m.length;
+            }
+
+            int[][] newM = new int[m.length + 1][];
+            for (int i = 0, j = 0; i < newM.length; i++) {
+                if (i == idx) newM[i] = newRow;
+                else newM[i] = m[j++];
+            }
+            return newM;
     }
 }
